@@ -5,7 +5,7 @@
 import serial
 import time
 import datetime
-from tkinter import *
+from Tkinter import *
 
 ser = serial.Serial('/dev/pts/21')
 ser.baudrate = 9600
@@ -61,11 +61,11 @@ def decode_discrete(hexstr):
 	binstr = bin(int(hexstr,16))
 	binstr = binstr[2:]
 
-	# Converts binstr to list
-	# bin_list=list(binstr)
-
 	# Converts binstr to list of ints (1's and 0's), then converts to Boolean values 
-	bin_list = list(map(bool,map(int,binstr)))
+	# bin_list = list(map(bool,map(int,binstr)))
+
+	# Converts binstr to list of ints (1's and 0's)
+	bin_list = list(map(int,binstr))
 
 	# Print for debugging
 	print(bin_list)
@@ -73,7 +73,7 @@ def decode_discrete(hexstr):
 	# Discrete: Air/Gnd 2 		= bit 1		VALUES: 1=In-Air, 	 0=On-Ground
 	# Discrete: Air/Gnd 1 		= bit 2		VALUES: 1=In-Air, 	 0=On-Ground
 	# Discrete: Alt Source Sel 	= bit 3		VALUES:	1=ADC 1, 	 0=ADC 2
-	# Discrete: Standby/On 		= bit 4		VALUES:	1=On, 		 0=Off
+	# Discrete: Standby/On 		= bit 4		VALUES:	1=On, 		 0=Standby
 	# Variable: Air/Gnd 		= bit 5		VALUES:	1=On-Ground, 0=In-Air
 	# Variable: PP Config Avail = bit 6		VALUES:	1=Avail, 	 0=Not Avail
 	# Variable: ADS-B Fail 		= bit 7		VALUES:	1=Failed, 	 0=Not Fail
