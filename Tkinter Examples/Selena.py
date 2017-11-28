@@ -2,5 +2,5 @@
 import time
 
 while(1):
-	print("You mean Cat-Food")
+	print("Wake up you Bum")
 	time.sleep(.1)

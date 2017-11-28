@@ -20,7 +20,7 @@ def publish():
 		# print(line)
 
 		# Time delay
-		time.sleep(.3)
+		time.sleep(.05)
 
 if __name__ == '__main__':
     publish()
