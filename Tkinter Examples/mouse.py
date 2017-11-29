@@ -1,4 +1,6 @@
 import tkinter
+
+
 root = tkinter.Tk()
 canvas = tkinter.Canvas(root)
 canvas.pack()

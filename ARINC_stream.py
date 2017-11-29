@@ -19,7 +19,7 @@ def publish():
 		# print for debugging
 		# print(line)
 
-		# Time delay
+		# Time delay (On actual serial stream there will be no delay)
 		time.sleep(.05)
 
 if __name__ == '__main__':
