@@ -60,6 +60,11 @@ def GUI(log_file):
 def doNothing():
     print("Nothing")
 
+# Returns input from entry widgets
+def get_entry(event):
+    print(event[0].get() + event[1].get())
+    # return [event[0].get(), event[1].get()]
+
 # Add tabs to GUI
 def create_tabs(nb):
     # Defines and places the notebook widget
@@ -68,14 +73,33 @@ def create_tabs(nb):
     ##### Home #####
     page0 = ttk.Frame(nb)
 
-    # Home Fields
+    # Home Labels
     home_label0 = Label(page0, text="").grid(row=0, column=0, padx=4, sticky='W')
     home_label1 = Label(page0, text="Home", font=(None,14)).grid(row=1,column=0, padx=4, sticky="W")
-    home_label2 = Label(page0, text="Incoming Message:").grid(row=2,column=0, padx=4, sticky='W')
+    home_label2 = Label(page0, text="Specify the desination you want to connect to:").grid(row=2,column=0, padx=4, sticky='W')
+    home_label3 = Label(page0, text="Serial Line").grid(row=3,column=0, padx=4, sticky='W')
+    home_label4 = Label(page0, text="Speed").grid(row=3,column=1, padx=4, sticky='W')
+    home_label5 = Label(page0, text="Incoming Message:").grid(row=6,column=0, padx=4, sticky='W')
+    
+    # Entry widgets for Serial Port and Speed
+    nb.home_entry0 = Entry(page0)
+    nb.home_entry1 = Entry(page0)
+    
+    # Insert placeholder text
+    nb.home_entry0.insert(0,'/dev/ttyS0')    
+    nb.home_entry1.insert(0,'9600')
+
+    # Display onto GUI
+    nb.home_entry0.grid(row=4,column=0, padx=4, sticky='W')
+    nb.home_entry1.grid(row=4,column=1, padx=4, sticky='W')
+
+    # Button
+    nb.home_button0 = Button(page0, text='Open', command=get_entry)
+    nb.home_button0.grid(row=5,column=0, padx=4, sticky='W')
 
     # Home Values
     nb.home_value0 = Label(page0, text="N/A")
-    nb.home_value0.grid(row=2,column=1, padx=4, sticky='W')
+    nb.home_value0.grid(row=6,column=1, padx=4, sticky='W')
 
     # Add tab to notebook
     nb.add(page0, text='Home')
@@ -83,7 +107,7 @@ def create_tabs(nb):
     ##### Discretes #####
     page1 = ttk.Frame(nb) 
     
-    # First Column of Discrete Fields
+    # First Column of Discrete Labels
     discrete_label0 = Label(page1, text="").grid(row=0, column=0, padx=4, sticky='W')
     discrete_label1 = Label(page1, text="Discretes", font=(None,14)).grid(row=1,column=0, padx=4, sticky="W")
     discrete_label2 = Label(page1, text="Air/Gnd 2:").grid(row=2,column=0, padx=4, sticky='W')
@@ -92,7 +116,7 @@ def create_tabs(nb):
     discrete_label5 = Label(page1, text="Standby/On:").grid(row=5,column=0, padx=4, sticky='W')       
     discrete_label6 = Label(page1, text="Selected GPS:").grid(row=6,column=0, padx=4, sticky='W')
 
-    # First Column of Variable Fields
+    # First Column of Variable Labels
     discrete_label7 = Label(page1, text="").grid(row=7,column=0, padx=4, sticky='W')
     discrete_label8 = Label(page1, text="Variables:", font=(None,14)).grid(row=8,column=0, padx=4, sticky="W")
     discrete_label9 = Label(page1, text="Air/Gnd:").grid(row=9,column=0, padx=4, sticky='W')
@@ -147,13 +171,17 @@ def update_GUI(main, nb, tabs, log_file):
     # Update GUI
     main.update()
 
+    ### IF NOT STARTED DO NOT READ SERIAL PORT
+    yah = [nb.home_entry0, nb.home_entry1]
+    nb.home_button0.invoke()
+
     # Store decoded serial message
     serial_message = ser.readline().decode().strip()
 
     # Read message from stream
     message = Transponder_Decoder.decode_stream(serial_message, log_file)
 
-    # Update tab data
+    # Update tab data that the GUI is currently viewing
     update_tabs(nb, nb.index("current"), tabs[nb.index("current")], message)
 
 
