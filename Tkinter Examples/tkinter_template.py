@@ -40,6 +40,7 @@ def GUI():
     menu.add_cascade(label="Edit", menu=editMenu)
     editMenu.add_command(label="Redo", command=doNothing)
 
+
     toolsMenu = Menu(menu)
     menu.add_cascade(label="Tools", menu=toolsMenu)
     toolsMenu.add_command(label="Select Port", command=doNothing)
@@ -54,6 +55,8 @@ def GUI():
     while(True):
         update_GUI(main, nb, tabs)
         time.sleep(.1)
+
+    main.mainloop()
 
 # Temp function for drop-down menus
 def doNothing():
@@ -116,6 +119,10 @@ def create_tabs(nb):
     nb.discrete_value12 = Label(page1, text="N/A")
     nb.discrete_value12.grid(row=12,column=1, padx=4, sticky='W')
 
+    # Button
+    nb.home_button0 = Button(page1, text='Quit', command=doSomething("Hello"))
+    nb.home_button0.grid(row=14, column=0, padx=4, sticky='W')
+
     # Add tab to notebook
     nb.add(page1, text='Tab 2')
 
@@ -156,16 +163,6 @@ def update_tabs(nb,page_num, page, message):
         nb.discrete_value10.config(text=temp_value)
         nb.discrete_value11.config(text=temp_value)
         nb.discrete_value12.config(text=temp_value)
-
-
-    # # ARINC message
-    # elif(page is not None):
-    #     print(random())
-
-    # # Extended Squitter message
-    # elif(page is not None):
-    #     print(random())
-
 
 # Main
 if __name__ == "__main__":

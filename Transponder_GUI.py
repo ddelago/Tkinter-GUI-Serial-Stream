@@ -5,26 +5,39 @@
 import Transponder_Decoder
 from Tkinter import *
 import ttk
+from PIL import Image, ImageTk
 import serial
 import time
 import datetime
 
-# /dev/pts/## is a virtual serial port used for simulating a live serial stream. See README.
-ser = serial.Serial('/dev/pts/21')
-ser.baudrate = 9600
+
+# /dev/pts/21 is a virtual serial port used for simulating a live serial stream. See README.
+# ser = serial.Serial('/dev/pts/21')
+# ser.baudrate = 9600
+ser = serial.Serial()
+
+# Serial Port chosen boolean
+ser_bool = False
+
+# Create GUI Window
+main = Tk()
+main.title('Transponder Stream')
+main.geometry('800x600')
+
+# Create NoteBook for tabs
+nb = ttk.Notebook(main)
+
 
 # Creates GUI
 def GUI(log_file):
-    main = Tk()
-    main.title('Transponder Stream')
-    main.geometry('800x600')
-
     # gives weight to the cells in the grid
     rows = 0
     while rows < 45:
         main.rowconfigure(rows, weight=1)
         main.columnconfigure(rows, weight=1)
         rows += 1
+    # main.rowconfigure(0, weight=1)
+    # main.columnconfigure(0, weight=1)
 
     ### Drop-down Menus ###
     menu = Menu(main)
@@ -49,7 +62,6 @@ def GUI(log_file):
     toolsMenu.add_command(label="New...", command=doNothing)
 
     ### Tabs ###
-    nb = ttk.Notebook(main)
     tabs = create_tabs(nb)
 
     ### Update GUI ###
@@ -60,10 +72,24 @@ def GUI(log_file):
 def doNothing():
     print("Nothing")
 
-# Returns input from entry widgets
-def get_entry(event):
-    print(event[0].get() + event[1].get())
-    # return [event[0].get(), event[1].get()]
+# Attempts to open serial port entered
+def serial_open():
+    global ser_bool, ser
+
+    try:
+        ser = serial.Serial(nb.home_entry0.get())
+        ser.baudrate = nb.home_entry1.get()
+        ser_bool = True
+    except:
+        ser_bool = False
+        print("Serial port not available.")
+
+# Attempts to open serial port entered
+def serial_close():
+    global ser_bool
+    ser_bool = False
+    print("Port Closed")
+
 
 # Add tabs to GUI
 def create_tabs(nb):
@@ -73,8 +99,16 @@ def create_tabs(nb):
     ##### Home #####
     page0 = ttk.Frame(nb)
 
+    # Image
+    img = Image.open("Nasa-Logo-Transparent-Background-download.png")
+    img = img.resize((94,78),Image.ANTIALIAS)
+    img = ImageTk.PhotoImage(img)
+    panel = Label(page0, image = img)
+    panel.image = img
+    # panel.grid(row=0, column=0, padx=1, pady=4, sticky="W")
+
     # Home Labels
-    home_label0 = Label(page0, text="").grid(row=0, column=0, padx=4, sticky='W')
+    # home_label0 = Label(page0, text="").grid(row=0, column=0, padx=4, sticky='W')
     home_label1 = Label(page0, text="Home", font=(None,14)).grid(row=1,column=0, padx=4, sticky="W")
     home_label2 = Label(page0, text="Specify the desination you want to connect to:").grid(row=2,column=0, padx=4, sticky='W')
     home_label3 = Label(page0, text="Serial Line").grid(row=3,column=0, padx=4, sticky='W')
@@ -93,9 +127,14 @@ def create_tabs(nb):
     nb.home_entry0.grid(row=4,column=0, padx=4, sticky='W')
     nb.home_entry1.grid(row=4,column=1, padx=4, sticky='W')
 
-    # Button
-    nb.home_button0 = Button(page0, text='Open', command=get_entry)
+    # Button Open Serial
+    nb.home_button0 = Button(page0, text='Open Port', command=serial_open)
     nb.home_button0.grid(row=5,column=0, padx=4, sticky='W')
+
+    # Button Close Serial
+    nb.home_button1 = Button(page0, text='Close Port', command=serial_close)
+    nb.home_button1.grid(row=5,column=1, padx=4, sticky='W')
+
 
     # Home Values
     nb.home_value0 = Label(page0, text="N/A")
@@ -171,19 +210,27 @@ def update_GUI(main, nb, tabs, log_file):
     # Update GUI
     main.update()
 
-    ### IF NOT STARTED DO NOT READ SERIAL PORT
-    yah = [nb.home_entry0, nb.home_entry1]
-    nb.home_button0.invoke()
+    # Serial message variable
+    message = ""
 
+    # If a serial port has been opened or not
+    if(ser_bool):
+        # If port successfully opened, get message
+        message = read_stream(ser)
+
+        # Update tab data that the GUI is currently viewing
+        update_tabs(nb, nb.index("current"), tabs[nb.index("current")], message)
+
+# Read Serial Stream
+def read_stream(ser):
     # Store decoded serial message
     serial_message = ser.readline().decode().strip()
 
     # Read message from stream
     message = Transponder_Decoder.decode_stream(serial_message, log_file)
 
-    # Update tab data that the GUI is currently viewing
-    update_tabs(nb, nb.index("current"), tabs[nb.index("current")], message)
-
+    # Return decoded message
+    return message
 
 # Populate Tabs
 def update_tabs(nb,page_num, page, message):

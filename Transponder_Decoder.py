@@ -13,6 +13,8 @@ def decode_stream(serial_message, log_file):
     # Write time-stamped message to log file
     log_file.write(sys_time + ' ' + serial_message + '\n')
 
+    message = ""
+
     # If a Discrete Message
     if(len(serial_message)==6):
         message = decode_discrete(serial_message)
